@@ -321,6 +321,7 @@ if "generated_prompts" in st.session_state:
                     if response.status_code == 200:
                         try:
                             result = response.json()
+                            result = result.replace(prompt["user"],"")
                             results.append(result)
                             st.success(f"Response for Prompt {idx + 1}:")
                             st.write(result)
