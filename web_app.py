@@ -132,11 +132,18 @@ def plot_llm_results():
             "not found": 0
         }
         
-        for result in results:
+        for idx,response in results:
             try:
                 # Extract text from the result
-                text = result[0]['generated_text'] if isinstance(result, list) and len(result) > 0 else str(result)
-                sentiment = extract_sentiment(str(text))
+                text = response if isinstance(response, str) else str(response)
+                
+                sentiment = extract_sentiment(text)
+
+                if sentiment == "stronglyagree":
+                    sentiment = "strongly agree"
+                elif sentiment == "stronglydisagree":
+                    sentiment = "strongly disagree"
+                
                 sentiment_counts[sentiment] += 1
             except Exception as e:
                 st.warning(f"Error processing result for {model}: {e}")
