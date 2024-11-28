@@ -424,7 +424,7 @@ if sentiment_plot:
     
     idx_list = []
     for result in detailed_results[selected_sentiment] :
-       for idx repsonse_text in temp:
+       for idx, repsonse_text in temp:
           if result == response_text :
               idx_list.append(idx)
            
