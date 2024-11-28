@@ -423,8 +423,13 @@ if sentiment_plot:
     st.sidebar.write(f"Prompts for {selected_sentiment}:")
     
     idx_list = []
+    results_list = []
+    
+    for item in st.session_state.results:
+        results_list.append(item[1])
+    
     for result in detailed_results[selected_sentiment] :
-       for idx, response_text in enumerate(st.session_state.results):
+       for idx, response_text in enumerate(results_list):
           if str(result).strip() == str(response_text).strip() :
               idx_list.append(idx)
     for idx in idx_list:
