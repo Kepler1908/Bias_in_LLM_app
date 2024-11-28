@@ -420,7 +420,7 @@ if sentiment_plot:
         "Select Sentiment", 
         list(detailed_results.keys())
     )
-    st.sidebar.write(f"Prompts for {selected_sentiment}:")
+    st.sidebar.write(f"Resolution/Decision for {selected_sentiment}:")
     
     idx_list = []
     results_list = []
