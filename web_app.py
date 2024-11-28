@@ -294,7 +294,7 @@ if "generated_prompts" in st.session_state:
                 st.write(f"Processing prompt {idx + 1}/{len(generated_prompts)}: {prompt}")
 
                 try:
-                  stream = client.generate(
+                  stream = client.chat_completion(
                                     messages=[
                                     {"role": "user",
     		                        "content": prompt["user"] #you can choose from the prompt templates list
