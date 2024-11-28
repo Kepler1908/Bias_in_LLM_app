@@ -304,7 +304,7 @@ if "generated_prompts" in st.session_state:
                                      ],    	
     	                             max_tokens=max_tokens,
                                      temperature=temperature,
-                                     top_p=top_p
+                                     top_p=top_p,
     	                             stream=True
                                      )
                   chat=[]
