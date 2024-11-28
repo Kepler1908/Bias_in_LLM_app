@@ -421,7 +421,14 @@ if sentiment_plot:
         list(detailed_results.keys())
     )
     st.sidebar.write(f"Prompts for {selected_sentiment}:")
-    st.sidebar.write(detailed_results[selected_sentiment])
+    
+    idx_list = []
+    for result in detailed_results[selected_sentiment] :
+       for idx repsonse_text in temp:
+          if result == response_text :
+              idx_list.append(idx)
+           
+    st.sidebar.write(list_variable[idx])
 
 # LLM Performance Visualization
 st.subheader("LLM Performance")
