@@ -6,6 +6,7 @@ import re
 import json
 import plotly.graph_objs as go
 import plotly.express as px
+from huggingface_hub import InferenceClient
 
 def extract_sentiment(text):
     """
@@ -277,74 +278,114 @@ if "generated_prompts" in st.session_state:
 
     if api_key and model_name and st.button("Send Prompts to Model"):
         results = []
+        answers = []
         try:
-            huggingface_api_url = f"https://api-inference.huggingface.co/models/{model_name}"
-            headers = {
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            }
+            client = InferenceClient(api_key=api_key)
+            
+
+            
+            #huggingface_api_url = f"https://api-inference.huggingface.co/models/{model_name}"
+            #headers = {
+                #"Authorization": f"Bearer {api_key}",
+                #"Content-Type": "application/json"
+            #}
             
             for idx, prompt in enumerate(generated_prompts):
                 st.write(f"Processing prompt {idx + 1}/{len(generated_prompts)}: {prompt}")
-                
-                # Modify payload based on model type
-                if 'Instruct' in model_name or 'zephyr' in model_name:
-                    # For instruction-tuned models
-                    payload = {
-                        "inputs": prompt["user"],
-                        "parameters": {
-                            "max_new_tokens": max_tokens,
-                            "temperature": temperature,
-                            "top_p": top_p
-                        }
-                    }
-                else:
-                    # For other models (like GPT-2)
-                    payload = {
-                        "inputs": prompt["user"],
-                        "parameters": {
-                            "max_length": max_tokens,
-                            "temperature": temperature,
-                            "top_p": top_p
-                        }
-                    }
-                
-                try:
-                    response = requests.post(
-                        huggingface_api_url, 
-                        headers=headers, 
-                        data=json.dumps(payload)
-                    )
-                    
-                    time.sleep(send_interval)
-                    
-                    if response.status_code == 200:
-                        try:
-                            result = response.json()
-                            result = result[0]['generated_prompts'].replace(prompt["user"],"")
-                            results.append(result)
-                            st.success(f"Response for Prompt {idx + 1}:")
-                            st.write(result)
-                        except ValueError as json_err:
-                            st.error(f"JSON Decoding Error for Prompt {idx + 1}: {json_err}")
-                            st.error(f"Response content: {response.text}")
-                    else:
-                        error_message = response.text
-                        st.error(f"API request failed for Prompt {idx + 1}: {error_message}")
-                        results.append({"error": error_message})
-                
-                except requests.exceptions.RequestException as req_err:
-                    st.error(f"Request failed for Prompt {idx + 1}: {req_err}")
-            
-            st.success("All prompts processed!")
-            st.write("Final Results:", results)
 
-            st.session_state.results = results
+                try:
+                  stream = client.chat.completions.create(
+                                    model=model_name, #you can choose from the models list
+    	                            #Building the prompt
+                                    messages=[
+                                    {"role": "user",
+    		                        "content": prompt["user"] #you can choose from the prompt templates list
+                                     }
+                                     ],    	
+    	                             max_tokens=max_tokens,
+                                     temperature=temperature,
+                                     top_p=top_p
+    	                             stream=True
+                                     )
+                  chat=[]
+                  for chunk in stream:
+                      chat.append(chunk.choices[0].delta.content)
+                  response_text = ' '.join(chat)
+                  temp=idx, response_text
+                  answers.append(temp)
+                except Exception as stream_err:
+                # 如果流式调用失败，记录错误
+                  st.error(f"Stream processing error for Prompt {idx + 1}: {stream_err}")
+                  answers.append((idx, {"error": str(stream_err)}))
+                    
+                time.sleep(send_interval)
+            st.success("All prompts processed!")
+            st.write("Final Results:", answers)
+
+            # 保存会话状态
+            st.session_state.results = answers
             st.session_state.model_name = model_name
             st.session_state.generated_prompts = generated_prompts
-        
         except Exception as e:
+        # 捕获顶层异常
             st.error(f"Unexpected error: {e}")
+
+                
+                # Modify payload based on model type
+                #if 'Instruct' in model_name or 'zephyr' in model_name:
+                    # For instruction-tuned models
+                    #payload = {
+                        #"inputs": prompt["user"],
+                        #“parameters": {
+                            #"max_new_tokens": max_tokens,
+                            #"temperature": temperature,
+                            #"top_p": top_p
+                        #}
+                    #}
+                #else:
+                    # For other models (like GPT-2)
+                    #payload = {
+                        #"inputs": prompt["user"],
+                        #"parameters": {
+                            #"max_length": max_tokens,
+                            #"temperature": temperature,
+                            #"top_p": top_p
+                        #}
+                    #}
+                
+                #try:
+                    #response = requests.post(
+                        #huggingface_api_url, 
+                        #headers=headers, 
+                        #data=json.dumps(payload)
+                    #)
+                    
+                    #if response.status_code == 200:
+                        #try:
+                            #result = response.json()
+                            #results.append(result)
+                            #st.success(f"Response for Prompt {idx + 1}:")
+                            #st.write(result)
+                        #except ValueError as json_err:
+                            #st.error(f"JSON Decoding Error for Prompt {idx + 1}: {json_err}")
+                            #st.error(f"Response content: {response.text}")
+                    #else:
+                        #error_message = response.text
+                        #st.error(f"API request failed for Prompt {idx + 1}: {error_message}")
+                        #results.append({"error": error_message})
+                
+                #except requests.exceptions.RequestException as req_err:
+                    #st.error(f"Request failed for Prompt {idx + 1}: {req_err}")
+            
+            #st.success("All prompts processed!")
+            #st.write("Final Results:", results)
+
+            #st.session_state.results = results
+            #st.session_state.model_name = model_name
+            #st.session_state.generated_prompts = generated_prompts
+        
+        #except Exception as e:
+            #st.error(f"Unexpected error: {e}")
 
 # -----------------------
 # Part 5: Statistical Charts
