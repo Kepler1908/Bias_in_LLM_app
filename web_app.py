@@ -261,6 +261,9 @@ if "generated_prompts" in st.session_state:
     api_key = st.text_input("Enter your HuggingFace API key:", type="password")
     predefined_models = [
         "mistralai/Mixtral-8x7B-Instruct-v0.1",
+        "mistralai/Mistral-7B-Instruct-v0.3",
+        "meta-llama/Llama-3.2-3B-Instruct",
+        "meta-llama/Llama-3.1-70B-Instruct",
         "meta-llama/Meta-Llama-3.1-8B-Instruct",
         "Qwen/Qwen2.5-Coder-32B-Instruct",
         "HuggingFaceTB/SmolLM2-1.7B-Instruct",
