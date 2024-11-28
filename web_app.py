@@ -451,5 +451,5 @@ if llm_plots:
         st.plotly_chart(stacked_fig, use_container_width=True)
 
 
-st.header("Appendix: responses")
+st.header("Answers of LLM")
 st.write(st.session_state.results)
