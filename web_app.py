@@ -189,6 +189,45 @@ def plot_llm_results():
 
     return response_fig, stacked_fig
 
+
+def update_comprehensive_results():
+    """
+    Create a comprehensive results structure tracking sentiments across different LLMs
+    """
+    # Check if required session states exist
+    if not hasattr(st.session_state, 'list_variable') or \
+       not hasattr(st.session_state, 'results') or \
+       not hasattr(st.session_state, 'model_name'):
+        st.warning("Missing required session state variables.")
+        return None
+
+    # Initialize the comprehensive results list if not exists
+    if 'comprehensive_results' not in st.session_state:
+        st.session_state.comprehensive_results = []
+
+    # Iterate through list variable items
+    for idx, item in enumerate(st.session_state.list_variable):
+        # Check if this item already has an entry
+        item_exists = False
+        for existing_dict in st.session_state.comprehensive_results:
+            if item in existing_dict:
+                item_exists = True
+                # Update or add model results for this item
+                existing_dict[item][st.session_state.model_name] = extract_sentiment(st.session_state.results[idx][1])
+                break
+
+        # If item doesn't exist, create a new dictionary entry
+        if not item_exists:
+            new_item_dict = {
+                item: {
+                    st.session_state.model_name: extract_sentiment(st.session_state.results[idx][1])
+                }
+            }
+            st.session_state.comprehensive_results.append(new_item_dict)
+
+    return st.session_state.comprehensive_results
+
+
 # -----------------------
 # Part 1: Title
 # -----------------------
@@ -451,6 +490,6 @@ if llm_plots:
     with tab2:
         st.plotly_chart(stacked_fig, use_container_width=True)
 
-
+st.write(update_comprehensive_results())
 st.header("Answers of LLM")
 st.write(st.session_state.results)
