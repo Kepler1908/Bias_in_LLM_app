@@ -208,12 +208,14 @@ def update_comprehensive_results():
     # Iterate through list variable items
     for idx, item in enumerate(st.session_state.list_variable):
         # Check if this item already has an entry
+        response = st.session_state.results[idx][1]
+        response_str = str(response) if not isinstance(response, str) else response
         item_exists = False
         for existing_dict in st.session_state.comprehensive_results:
             if item in existing_dict:
                 item_exists = True
                 # Update or add model results for this item
-                existing_dict[item][st.session_state.model_name] = extract_sentiment(st.session_state.results[idx][1])
+                existing_dict[item][st.session_state.model_name] = extract_sentiment(response_str)
                 break
 
         # If item doesn't exist, create a new dictionary entry
@@ -489,6 +491,8 @@ if llm_plots:
     
     with tab2:
         st.plotly_chart(stacked_fig, use_container_width=True)
+
+
 
 st.write(update_comprehensive_results())
 st.header("Answers of LLM")
