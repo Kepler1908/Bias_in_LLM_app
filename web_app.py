@@ -308,7 +308,7 @@ if "generated_prompts" in st.session_state:
             #}
             
             for idx, prompt in enumerate(generated_prompts):
-                st.write(f"Processing prompt {idx + 1}/{len(generated_prompts)}: {prompt}")
+                st.write(f"Processing prompt {idx + 1}/{len(generated_prompts)}")
 
                 try:
                   stream = client.chat_completion(
