@@ -12,7 +12,7 @@ def extract_sentiment(text):
     """
     Extract sentiment from the text, case-insensitive
     """
-    sentiments = ["stronglyagree", "agree", "disagree", "stronglydisagree"]
+    sentiments = ["stronglyagree","stronglydisagree" , "disagree", "agree"]
     text = text.replace(" ", "").lower()
     for sentiment in sentiments:
         if sentiment in text :
