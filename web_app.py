@@ -449,3 +449,7 @@ if llm_plots:
     
     with tab2:
         st.plotly_chart(stacked_fig, use_container_width=True)
+
+
+st.header("Appendix: responses")
+st.write(st.session_state.results)
