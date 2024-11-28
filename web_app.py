@@ -262,10 +262,10 @@ if "generated_prompts" in st.session_state:
     predefined_models = [
         "mistralai/Mixtral-8x7B-Instruct-v0.1",
         "meta-llama/Meta-Llama-3.1-8B-Instruct",
-        "google/gemma-7b",
-        "bigcode/starcoder",
-        "openai-community/gpt2",
-        "HuggingFaceH4/zephyr-7b-beta"
+        "Qwen/Qwen2.5-Coder-32B-Instruct",
+        "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+        "microsoft/Phi-3.5-mini-instruct",
+        "tiiuae/falcon-7b-instruct",
     ]
     model_name = st.selectbox("Select a Hugging Face model:", options=predefined_models + ["Custom"])
     if model_name == "Custom":
