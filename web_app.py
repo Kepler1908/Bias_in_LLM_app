@@ -19,7 +19,7 @@ def extract_sentiment(text):
             return sentiment.lower()
     return "not found"
 
-def parse_results(results):
+def parse_results():
     """
     Parse results and categorize sentiments
     """
@@ -46,7 +46,7 @@ def parse_results(results):
     }
 
     # Parse results
-    for idx,response in results:
+    for idx,response in st.session_state.results:
         try:
             # Extract text from the result
             text = response if isinstance(response, str) else str(response)
@@ -69,7 +69,7 @@ def plot_sentiment_distribution():
     """
     Create bar plot of sentiment distribution
     """
-    results = parse_results(st.session_state.results)
+    results = parse_results()
     if not results:
         return None
 
@@ -124,7 +124,29 @@ def plot_llm_results():
         llm_response_counts[model] = len(results)
 
         # Count sentiments per LLM
-        sentiment_counts = parse_results(results)
+        sentiment_counts = {
+            "strongly agree": 0,
+            "agree": 0,
+            "disagree": 0,
+            "strongly disagree": 0,
+            "not found": 0
+        }
+        
+        for idx,response in results:
+            try:
+                # Extract text from the result
+                text = response if isinstance(response, str) else str(response)
+                
+                sentiment = extract_sentiment(text)
+
+                if sentiment == "stronglyagree":
+                    sentiment = "strongly agree"
+                elif sentiment == "stronglydisagree":
+                    sentiment = "strongly disagree"
+                
+                sentiment_counts[sentiment] += 1
+            except Exception as e:
+                st.warning(f"Error processing result for {model}: {e}")
         
         llm_sentiment_counts[model] = sentiment_counts
 
