@@ -12,9 +12,10 @@ def extract_sentiment(text):
     """
     Extract sentiment from the text, case-insensitive
     """
-    sentiments = ["strongly agree", "agree", "disagree", "strongly disagree"]
+    sentiments = ["stronglyagree", "agree", "disagree", "stronglydisagree"]
+    text = text.replace(" ", "").lower()
     for sentiment in sentiments:
-        if sentiment.lower() in text.lower():
+        if sentiment in text :
             return sentiment.lower()
     return "not found"
 
@@ -45,12 +46,18 @@ def parse_results():
     }
 
     # Parse results
-    for result_list in st.session_state.results:
+    for idx,response in st.session_state.results:
         try:
             # Extract text from the result
-            text = result_list[0]['generated_text'] if isinstance(result_list, list) and len(result_list) > 0 else str(result_list)
-            sentiment = extract_sentiment(str(text))
+            text = response if isinstance(response, str) else str(response)
             
+            sentiment = extract_sentiment(text)
+            
+            if sentiment == "stronglyagree":
+                sentiment = "strongly agree"
+            elif sentiment == "stronglydisagree":
+                sentiment = "strongly disagree"
+
             sentiment_counts[sentiment] += 1
             detailed_results[sentiment].append(text)
         except Exception as e:
