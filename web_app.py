@@ -433,7 +433,7 @@ if sentiment_plot:
           if str(result).strip() == str(response_text).strip() :
               idx_list.append(idx)
     for idx in idx_list:
-      st.sidebar.write(st.session_state.list_variable[idx])
+      st.sidebar.write(idx, st.session_state.list_variable[idx])
 
 # LLM Performance Visualization
 st.subheader("LLM Performance")
