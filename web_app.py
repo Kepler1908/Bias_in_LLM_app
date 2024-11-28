@@ -222,7 +222,7 @@ def update_comprehensive_results():
         if not item_exists:
             new_item_dict = {
                 item: {
-                    st.session_state.model_name: extract_sentiment(st.session_state.results[idx][1])
+                    st.session_state.model_name: extract_sentiment(response_str)
                 }
             }
             st.session_state.comprehensive_results.append(new_item_dict)
