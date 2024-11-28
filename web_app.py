@@ -280,7 +280,7 @@ if "generated_prompts" in st.session_state:
         results = []
         answers = []
         try:
-            client = InferenceClient(api_key=api_key)
+            client = InferenceClient(model=model_name,api_key=api_key)
             
 
             
@@ -294,9 +294,7 @@ if "generated_prompts" in st.session_state:
                 st.write(f"Processing prompt {idx + 1}/{len(generated_prompts)}: {prompt}")
 
                 try:
-                  stream = client.chat.completions.create(
-                                    model=model_name, #you can choose from the models list
-    	                            #Building the prompt
+                  stream = client.generate(
                                     messages=[
                                     {"role": "user",
     		                        "content": prompt["user"] #you can choose from the prompt templates list
