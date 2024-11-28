@@ -432,6 +432,7 @@ if sentiment_plot:
        for idx, response_text in enumerate(results_list):
           if str(result).strip() == str(response_text).strip() :
               idx_list.append(idx)
+    idx_list = list(set(idx_list))
     for idx in idx_list:
       st.sidebar.write(idx, st.session_state.list_variable[idx])
 
