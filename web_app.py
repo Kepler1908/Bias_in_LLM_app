@@ -604,6 +604,7 @@ if llm_plots:
 # -----------------------
 
 st.header("Disagreement Analysis")
+st.write(update_comprehensive_results())
 update_comprehensive_results = update_comprehensive_results()
 filtered_data = calculate_disagreement_degree(update_comprehensive_results)
 display_disagreement_analysis(filtered_data)
