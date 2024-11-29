@@ -263,6 +263,10 @@ def calculate_disagreement_degree(comprehensive_results):
             
             for model, sentiment in model_sentiments.items():
                 if sentiment in sentiment_weights:
+                    if sentiment == "stronglyagree" :
+                        sentiment = "strongly agree"
+                    elif sentiment == "stronglydisagree" :
+                        sentiment = "strongly disagree"
                     sentiment_weights_list.append(sentiment_weights[sentiment])
                     model_count += 1
             
@@ -605,7 +609,7 @@ if llm_plots:
 
 st.header("Disagreement Analysis")
 update_comprehensive_results = update_comprehensive_results()
-st.write(update_comprehensive_results)
+st.write(type(update_comprehensive_results),len(update_comprehensive_results))
 filtered_data = calculate_disagreement_degree(update_comprehensive_results)
 display_disagreement_analysis(filtered_data)
 
