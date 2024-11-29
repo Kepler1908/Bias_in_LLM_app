@@ -613,7 +613,7 @@ update_comprehensive_results = update_comprehensive_results()
 filtered_data = calculate_disagreement_degree(update_comprehensive_results)
 st.write(filtered_data)
 st.write(len(filtered_data))
-display_disagreement_analysis(filtered_data)
+display_disagreement_analysis(update_comprehensive_results)
 
 st.header("Answers of LLM")
 st.write(st.session_state.results)
