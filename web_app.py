@@ -326,9 +326,9 @@ def display_disagreement_analysis(comprehensive_results):
     
     # Display results
     for idx, result in enumerate(top_disagreements, 1):
-        st.subheader(f"{idx}. Resolution/Decision with High Disagreement")
+        st.subheader(f"{idx}. Resolution/Decision with High Divergence")
         st.write(f"Resolution/Decision: {result['prompt']}")
-        st.write(f"Disagreement Score: {result['disagreement_score']:.2f}")
+        st.write(f"Divergence Score: {result['disagreement_score']:.2f}")
         
         # Create a table of model sentiments
         disagreement_df = pd.DataFrame.from_dict(result['model_sentiments'], orient='index', columns=['Sentiment'])
