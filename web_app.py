@@ -609,8 +609,10 @@ if llm_plots:
 
 st.header("Disagreement Analysis")
 update_comprehensive_results = update_comprehensive_results()
-st.write(type(update_comprehensive_results),len(update_comprehensive_results))
+
 filtered_data = calculate_disagreement_degree(update_comprehensive_results)
+st.write(filtered_data)
+st.write(len(filtered_data))
 display_disagreement_analysis(filtered_data)
 
 st.header("Answers of LLM")
