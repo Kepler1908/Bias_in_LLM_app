@@ -611,7 +611,7 @@ if llm_plots:
 # Part 6: Digree of disagreement
 # -----------------------
 
-st.header("Disagreement Analysis")
+st.header("Divergence Analysis")
 update_comprehensive_results = update_comprehensive_results()
 
 display_disagreement_analysis(update_comprehensive_results)
