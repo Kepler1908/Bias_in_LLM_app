@@ -379,7 +379,7 @@ if data is not None:
     column_options = list(data.columns)
     selected_column = st.selectbox("Select a column to save as a list variable:", column_options)
     list_variable = data[selected_column].dropna().tolist()
-    if len(list_variable) > list_variable:
+    if len(list_variable) > 50:
         list_variable = random.sample(list_variable, 50)
     st.session_state.list_variable = list_variable
 
