@@ -614,6 +614,7 @@ if llm_plots:
 st.header("Disagreement Analysis")
 update_comprehensive_results = update_comprehensive_results()
 
+st.write(update_comprehensive_results)
 display_disagreement_analysis(update_comprehensive_results)
 
 st.header("Answers of LLM")
