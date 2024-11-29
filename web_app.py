@@ -230,6 +230,110 @@ def update_comprehensive_results():
     return st.session_state.comprehensive_results
 
 
+def calculate_disagreement_degree(comprehensive_results):
+    """
+    Calculate degree of disagreement across models for each prompt
+    
+    Disagreement Calculation Logic:
+    1. Sentiment Hierarchy: 
+       strongly disagree < disagree < not found < agree < strongly agree
+    2. Assign numerical weights to sentiments
+    3. Calculate variance of sentiment weights across models
+    4. Consider completeness of responses
+    5. Normalize disagreement score
+    """
+    # Sentiment weight mapping
+    sentiment_weights = {
+        "strongly disagree": 1,
+        "disagree": 2,
+        "not found": 3,
+        "agree": 4,
+        "strongly agree": 5
+    }
+    
+    # Store disagreement results
+    disagreement_results = []
+    
+    for prompt_dict in comprehensive_results:
+        for prompt, model_sentiments in prompt_dict.items():
+            # Extract sentiment weights for this prompt
+            sentiment_weights_list = []
+            model_count = 0
+            
+            for model, sentiment in model_sentiments.items():
+                if sentiment in sentiment_weights:
+                    sentiment_weights_list.append(sentiment_weights[sentiment])
+                    model_count += 1
+            
+            # Skip if insufficient data
+            if model_count < 2:
+                continue
+            
+            # Calculate disagreement metrics
+            # 1. Variance of sentiment weights
+            import numpy as np
+            weight_variance = np.var(sentiment_weights_list)
+            
+            # 2. Range of sentiments (max - min)
+            weight_range = max(sentiment_weights_list) - min(sentiment_weights_list)
+            
+            # 3. Unique sentiment count
+            unique_sentiments = len(set(model_sentiments.values()))
+            
+            # Combine metrics into a disagreement score
+            # Higher score means more disagreement
+            disagreement_score = (
+                weight_variance * 0.4 +  # Variance of weights
+                weight_range * 0.3 +     # Range of weights
+                (unique_sentiments / model_count) * 0.3  # Diversity of sentiments
+            )
+            
+            # Normalize to 0-100 scale
+            normalized_score = min(max(disagreement_score * 20, 0), 100)
+            
+            disagreement_results.append({
+                "prompt": prompt,
+                "disagreement_score": normalized_score,
+                "model_sentiments": model_sentiments,
+                "unique_sentiment_count": unique_sentiments,
+                "model_count": model_count
+            })
+    
+    # Sort by disagreement score in descending order
+    disagreement_results.sort(key=lambda x: x['disagreement_score'], reverse=True)
+    
+    # Return top 5 most disagreed prompts
+    return disagreement_results[:5]
+
+# Example usage in Streamlit
+def display_disagreement_analysis(comprehensive_results):
+    """
+    Wrapper function to display disagreement analysis in Streamlit
+    """
+
+    
+    # Calculate disagreement
+    top_disagreements = calculate_disagreement_degree(comprehensive_results)
+    
+    # Display results
+    for idx, result in enumerate(top_disagreements, 1):
+        st.subheader(f"{idx}. Prompt with High Disagreement")
+        st.write(f"Prompt: {result['prompt']}")
+        st.write(f"Disagreement Score: {result['disagreement_score']:.2f}")
+        
+        # Create a table of model sentiments
+        disagreement_df = pd.DataFrame.from_dict(result['model_sentiments'], orient='index', columns=['Sentiment'])
+        disagreement_df.index.name = 'Model'
+        st.table(disagreement_df)
+        
+        st.write(f"Unique Sentiments: {result['unique_sentiment_count']}")
+        st.write(f"Models Analyzed: {result['model_count']}")
+        st.markdown("---")
+
+    return top_disagreements
+
+#-----------------------------------------------------------------------------------------------------------------------------------------#
+
 # -----------------------
 # Part 1: Title
 # -----------------------
@@ -492,8 +596,14 @@ if llm_plots:
     with tab2:
         st.plotly_chart(stacked_fig, use_container_width=True)
 
+# -----------------------
+# Part 6: Digree of disagreement
+# -----------------------
 
+st.header("Disagreement Analysis")
+update_comprehensive_results = update_comprehensive_results())
+filtered_data = calculate_disagreement_degree(update_comprehensive_results)
+display_disagreement_analysis(filtered_data)
 
-st.write(update_comprehensive_results())
 st.header("Answers of LLM")
 st.write(st.session_state.results)
