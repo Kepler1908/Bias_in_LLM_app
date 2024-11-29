@@ -17,6 +17,10 @@ def extract_sentiment(text):
     text = text.replace(" ", "").lower()
     for sentiment in sentiments:
         if sentiment in text :
+            if sentiment == "stronglyagree":
+               sentiment = "strongly agree"
+            elif sentiment == "stronglydisagree":
+                sentiment = "strongly disagree"
             return sentiment.lower()
     return "not found"
 
