@@ -326,8 +326,8 @@ def display_disagreement_analysis(comprehensive_results):
     
     # Display results
     for idx, result in enumerate(top_disagreements, 1):
-        st.subheader(f"{idx}. Prompt with High Disagreement")
-        st.write(f"Prompt: {result['prompt']}")
+        st.subheader(f"{idx}. Resolution/Decision with High Disagreement")
+        st.write(f"Resolution/Decision: {result['prompt']}")
         st.write(f"Disagreement Score: {result['disagreement_score']:.2f}")
         
         # Create a table of model sentiments
