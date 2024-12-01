@@ -4,4 +4,4 @@
 
 To test the app, try `output_50.csv` in repository.
 
-The `non-iterable NoneType` error message don't influence the proper functioning of app will no longer arise after one round of execution, an update will be applied subsequently to address the problem.
+The `non-iterable NoneType` error message doesn't influence the proper functioning of app and will no longer arise after one round of execution, an update will be applied subsequently to address the problem.
