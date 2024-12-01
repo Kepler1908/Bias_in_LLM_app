@@ -32,7 +32,6 @@ def parse_results():
         st.warning("No results found. Please run the LLM queries first.")
         return None
 
-    # Initialize dictionaries to store results
     sentiment_counts = {
         "strongly agree": 0,
         "agree": 0,
@@ -41,7 +40,6 @@ def parse_results():
         "not found": 0
     }
     
-    # Storing detailed results for later reference
     detailed_results = {
         "strongly agree": [],
         "agree": [],
@@ -53,7 +51,6 @@ def parse_results():
     # Parse results
     for idx,response in st.session_state.results:
         try:
-            # Extract text from the result
             text = response if isinstance(response, str) else str(response)
             
             sentiment = extract_sentiment(text)
@@ -80,7 +77,6 @@ def plot_sentiment_distribution():
 
     sentiment_counts, detailed_results = results
 
-    # Create interactive bar plot
     fig = go.Figure(data=[
         go.Bar(
             x=list(sentiment_counts.keys()), 
@@ -96,7 +92,6 @@ def plot_sentiment_distribution():
         yaxis_title='Count'
     )
 
-    # Add click event to show details
     return fig, detailed_results
 
 def plot_llm_results():
@@ -107,28 +102,22 @@ def plot_llm_results():
         st.warning("No LLM results found.")
         return None
 
-    # If it's the first time running, initialize llm_results
     if "llm_results" not in st.session_state:
         st.session_state.llm_results = {}
 
-    # Add current results to llm_results if model_name exists
     if hasattr(st.session_state, 'model_name'):
         st.session_state.llm_results[st.session_state.model_name] = st.session_state.results
 
-    # Ensure we have results
     if not st.session_state.llm_results:
         st.warning("No LLM results found.")
         return None
 
-    # Count responses per LLM
     llm_response_counts = {}
     llm_sentiment_counts = {}
 
     for model, results in st.session_state.llm_results.items():
-        # Count total responses per LLM
         llm_response_counts[model] = len(results)
 
-        # Count sentiments per LLM
         sentiment_counts = {
             "strongly agree": 0,
             "agree": 0,
@@ -139,7 +128,6 @@ def plot_llm_results():
         
         for idx,response in results:
             try:
-                # Extract text from the result
                 text = response if isinstance(response, str) else str(response)
                 
                 sentiment = extract_sentiment(text)
@@ -155,7 +143,6 @@ def plot_llm_results():
         
         llm_sentiment_counts[model] = sentiment_counts
 
-    # Create response count bar plot
     response_fig = go.Figure(data=[
         go.Bar(
             x=list(llm_response_counts.keys()), 
@@ -170,10 +157,8 @@ def plot_llm_results():
         yaxis_title='Response Count'
     )
 
-    # Create stacked bar plot for sentiments
     sentiments = ["strongly agree", "agree", "disagree", "strongly disagree", "not found"]
     
-    # Prepare data for stacked bar plot
     stacked_data = []
     for model in llm_sentiment_counts.keys():
         stacked_data.append([llm_sentiment_counts[model][sent] for sent in sentiments])
@@ -199,31 +184,25 @@ def update_comprehensive_results():
     """
     Create a comprehensive results structure tracking sentiments across different LLMs
     """
-    # Check if required session states exist
     if not hasattr(st.session_state, 'list_variable') or \
        not hasattr(st.session_state, 'results') or \
        not hasattr(st.session_state, 'model_name'):
         st.warning("Missing required session state variables.")
         return None
 
-    # Initialize the comprehensive results list if not exists
     if 'comprehensive_results' not in st.session_state:
         st.session_state.comprehensive_results = []
 
-    # Iterate through list variable items
     for idx, item in enumerate(st.session_state.list_variable):
-        # Check if this item already has an entry
         response = st.session_state.results[idx][1]
         response_str = str(response) if not isinstance(response, str) else response
         item_exists = False
         for existing_dict in st.session_state.comprehensive_results:
             if item in existing_dict:
                 item_exists = True
-                # Update or add model results for this item
                 existing_dict[item][st.session_state.model_name] = extract_sentiment(response_str)
                 break
 
-        # If item doesn't exist, create a new dictionary entry
         if not item_exists:
             new_item_dict = {
                 item: {
@@ -247,7 +226,6 @@ def calculate_disagreement_degree(comprehensive_results):
     4. Consider completeness of responses
     5. Normalize disagreement score
     """
-    # Sentiment weight mapping
     sentiment_weights = {
         "strongly disagree": 1,
         "disagree": 2,
@@ -256,12 +234,10 @@ def calculate_disagreement_degree(comprehensive_results):
         "strongly agree": 5
     }
     
-    # Store disagreement results
     disagreement_results = []
     
     for prompt_dict in comprehensive_results:
         for prompt, model_sentiments in prompt_dict.items():
-            # Extract sentiment weights for this prompt
             sentiment_weights_list = []
             model_count = 0
             
@@ -274,30 +250,22 @@ def calculate_disagreement_degree(comprehensive_results):
                     sentiment_weights_list.append(sentiment_weights[sentiment])
                     model_count += 1
             
-            # Skip if insufficient data
             if model_count < 2:
                 continue
             
-            # Calculate disagreement metrics
-            # 1. Variance of sentiment weights
             import numpy as np
             weight_variance = np.var(sentiment_weights_list)
             
-            # 2. Range of sentiments (max - min)
             weight_range = max(sentiment_weights_list) - min(sentiment_weights_list)
             
-            # 3. Unique sentiment count
             unique_sentiments = len(set(model_sentiments.values()))
             
-            # Combine metrics into a disagreement score
-            # Higher score means more disagreement
             disagreement_score = (
-                weight_variance * 0.4 +  # Variance of weights
-                weight_range * 0.3 +     # Range of weights
-                (unique_sentiments / model_count) * 0.3  # Diversity of sentiments
+                weight_variance * 0.4 +  
+                weight_range * 0.3 +     
+                (unique_sentiments / model_count) * 0.3  
             )
             
-            # Normalize to 0-100 scale
             normalized_score = min(max(disagreement_score * 20, 0), 100)
             
             disagreement_results.append({
@@ -308,29 +276,23 @@ def calculate_disagreement_degree(comprehensive_results):
                 "model_count": model_count
             })
     
-    # Sort by disagreement score in descending order
     disagreement_results.sort(key=lambda x: x['disagreement_score'], reverse=True)
     
-    # Return top 5 most disagreed prompts
     return disagreement_results[:5]
 
-# Example usage in Streamlit
 def display_disagreement_analysis(comprehensive_results):
     """
     Wrapper function to display disagreement analysis in Streamlit
     """
 
     
-    # Calculate disagreement
     top_disagreements = calculate_disagreement_degree(comprehensive_results)
     
-    # Display results
     for idx, result in enumerate(top_disagreements, 1):
         st.subheader(f"{idx}. Resolution/Decision with High Divergence")
         st.write(f"Resolution/Decision: {result['prompt']}")
         st.write(f"Divergence Score: {result['disagreement_score']:.2f}")
         
-        # Create a table of model sentiments
         disagreement_df = pd.DataFrame.from_dict(result['model_sentiments'], orient='index', columns=['Sentiment'])
         disagreement_df.index.name = 'Model'
         st.table(disagreement_df)
@@ -361,7 +323,6 @@ if load_method == "Load from Google Drive":
     drive_url = st.text_input("Enter Google Drive file link:")
     if st.button("Load Data"):
         try:
-            # Extract file ID using regex
             match = re.search(r"(?<=/d/|id=)[^/?&]+", drive_url)
             if not match:
                 raise ValueError("Invalid Google Drive URL format.")
@@ -470,7 +431,7 @@ if "generated_prompts" in st.session_state:
                   stream = client.chat_completion(
                                     messages=[
                                     {"role": "user",
-    		                        "content": prompt["user"] #you can choose from the prompt templates list
+    		                        "content": prompt["user"] 
                                      }
                                      ],    	
     	                             max_tokens=max_tokens,
@@ -485,7 +446,6 @@ if "generated_prompts" in st.session_state:
                   temp=idx, response_text
                   answers.append(temp)
                 except Exception as stream_err:
-                # 如果流式调用失败，记录错误
                   st.error(f"Stream processing error for Prompt {idx + 1}: {stream_err}")
                   answers.append((idx, {"error": str(stream_err)}))
                     
@@ -493,12 +453,10 @@ if "generated_prompts" in st.session_state:
             st.success("All prompts processed!")
             st.write("Final Results:", answers)
 
-            # 保存会话状态
             st.session_state.results = answers
             st.session_state.model_name = model_name
             st.session_state.generated_prompts = generated_prompts
         except Exception as e:
-        # 捕获顶层异常
             st.error(f"Unexpected error: {e}")
 
                 
@@ -563,14 +521,12 @@ if "generated_prompts" in st.session_state:
 # -----------------------
 st.header("4. Statistical Charts")
 
-# Sentiment Distribution Visualization
 st.subheader("Sentiment Distribution")
 sentiment_plot = plot_sentiment_distribution()
 if sentiment_plot:
     fig, detailed_results = sentiment_plot
     st.plotly_chart(fig, use_container_width=True)
 
-    # Sidebar for detailed results
     st.sidebar.header("Sentiment Details")
     selected_sentiment = st.sidebar.selectbox(
         "Select Sentiment", 
@@ -592,13 +548,11 @@ if sentiment_plot:
     for idx in idx_list:
       st.sidebar.write(idx, st.session_state.list_variable[idx])
 
-# LLM Performance Visualization
 st.subheader("LLM Performance")
 llm_plots = plot_llm_results()
 if llm_plots:
     response_fig, stacked_fig = llm_plots
     
-    # Tabs for different visualizations
     tab1, tab2 = st.tabs(["Responses per LLM", "Sentiment Distribution per LLM"])
     
     with tab1:
